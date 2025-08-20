@@ -1,0 +1,63 @@
+user1 = User.objects.create_user(username = 'Blinov')
+user2 = User.objects.create_user(username = 'Artem')
+
+
+
+
+
+author1 = Author.objects.create(author_name = 'Блинов Дмитрий Андреевич',user = user1,rating = 0)
+author2 = Author.objects.create(author_name = 'Вишняков Артём Александрович',user = user2,rating = 0)
+
+
+sport_category = Category.objects.create(category_name = 'SP')
+politics_category = Category.objects.create(category_name = 'PO')
+showbusiness_category = Category.objects.create(category_name = 'SH')
+breaking_category = Category.objects.create(category_name = 'BR')
+economy_category = Category.objects.create(category_name = 'EC')
+
+
+Post1 = Post.objects.create(author = author1, title = 'Волгарь-Чертаново', post_type = 'AR', content = 'Приветствуем всех любителей спорта! Рады предложить вашему вниманию онлайн-трансляцию матча Волгарь – Чертаново в рамках турнира Fonbet Кубок России, 1/128 финала. Начало встречи 20 августа 2025 года запланировано на 19:15 по московскому времени.')
+
+
+
+Post2 = Post.objects.create(author = author1, title = 'Рейнджерс-Брюгге',  post_type = 'AR', content = 'Приветствуем всех любителей спорта! Рады предложить вашему вниманию онлайн-трансляцию матча Рейнджерс – Брюгге в рамках турнира Лига чемпионов, Раунд плей-офф. 1-й матч. Начало встречи 19 августа 2025 года запланировано на 22:00 по московскому времени и пройдет на стадионе Айброкс.')
+
+
+
+
+
+Post3 = Post.objects.create(author = author2, title = 'Посольство России назвало размер скидки на нефть для Индии',  post_type = 'NE', content = 'Индии предоставляется скидка на нефть из России в размере около 5% на фоне угрозы США ввести пошлины 25% на индийские товары за то, что Нью-Дели покупает топливо у Москвы')
+
+
+Post1.categories.add(sport_category,breaking_category)
+Post2.categories.add(sport_category,breaking_category)
+Post3.categories.add(economy_category,politics_category)
+
+comment1 = Comment.objects.create(post = Post1, user = user2, comment = 'Обязательно прийду посмотреть!')
+comment2 = Comment.objects.create(post = Post2, user = user2, comment = 'Этот матч был вчера, для чего эта статья?!')
+comment3 = Comment.objects.create(post = Post3, user = user1, comment = 'Так так так... Интересно')
+comment4 = Comment.objects.create(post = Post3, user = user1, comment = 'Дочитал до конца, очень мало информации!')
+
+Post1.like()
+Post2.dislike()
+Post3.dislike()
+
+comment1.like()
+comment2.like()
+comment2.like()
+comment2.like()
+
+user1.author.update_rating()
+user2.author.update_rating()
+
+best_user = User.objects.filter(author__isnull=False).order_by('-author__rating').first().username
+
+
+best_post = Post.objects.select_related('author__user').order_by('-rating').values(
+    'date', 'author__user__username', 'rating', 'title', 'content'
+).first()
+
+
+all_comments1 = Comment.objects.filter(post = Post1).values('date','user','rating','comment')
+all_comments2 = Comment.objects.filter(post = Post2).values('date','user','rating','comment')
+all_comments3 = Comment.objects.filter(post = Post3).values('date','user','rating','comment')
